@@ -1,4 +1,4 @@
-Sconst int analogInPin0 = A0;
+const int analogInPin0 = A0;
 const int analogInPin1 = A1;
 const int analogInPin2 = A2;
 
@@ -25,5 +25,5 @@ void loop() {
   Serial.print(" ");
   Serial.print(sensorValue2);
   Serial.println("");
-  delay(100);
+  delay(2);
 }

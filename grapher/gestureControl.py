@@ -4,8 +4,8 @@ import pyqtgraph as pg
 import numpy as np
 import threading
 import time
-
 from serReadline import serReadline
+from streamplot import PlotManager
 
 
 class sensor(object):
@@ -17,7 +17,6 @@ class sensor(object):
         self.ser.open()
         self.serialReader = serReadline(self.ser)
         # Data and Plot
-        self.plotWidget = pg.plot(title="Gesture Graphing")
         self.x = np.arange(1000)
         self.data0 = []
         self.data1 = []
@@ -28,8 +27,11 @@ class sensor(object):
         self.readThread = threading.Thread(target=self.readSampleThread)
         self.readThread.start()
         self.plotThread = threading.Thread(target=self.plotDataThread)
-        # plotWidget.plot(x, y[1], pen=(1,3))
-        # plotWidget.plot(x, y[2], pen=(2,3))
+        # self.plotThread.start()
+        plt_mgr = PlotManager(title="My first plot")
+        x, y = 1, 2
+        plt_mgr.add(name="name_of_variable", x=x, y=y)
+        plt_mgr.update()
 
     def __del__(self):
         self.ser.close()
@@ -41,7 +43,7 @@ class sensor(object):
         counter = 0
         while True:
             try:
-                sample = str(self.serialReader.readline(),'ascii').replace('\r\n', '').split(" ")
+                sample = str(self.serialReader.readline(), 'ascii').replace('\r\n', '').split(" ")
                 sample_Int = [int(i) for i in sample]
                 self.data0.append(sample_Int[0])
                 self.data1.append(sample_Int[1])
@@ -49,23 +51,19 @@ class sensor(object):
 
                 counter = counter+1
                 print(counter)
-                if counter % 10 == 0:
+                if counter % 500 == 0:
                     print("setttinggg")
-                    self.plotWidget.plot( self.data0 )
-                    self.plotWidget.plot( self.data1 )
-                    self.plotWidget.plot( self.data2 )
-                    #self.plotDataEvent.set()
-                # print(sample_Int)
+                    self.plotDataEvent.set()
             except Exception as e:
                 print(e)
                 time.sleep(1)
 
     def plotDataThread(self):
-        # while True:
-        #     self.plotDataEvent.wait()
-        #     self.plotWidget.plot(self.data0)
-        #     self.plotWidget.plot(self.data1)
-        #     self.plotWidget.plot(self.data2)
-        #     self.plotDataEvent.clear()
-        # self.plotWidget.plot( self.x, self.data1, pen=(2,3) )
-        # self.plotWidget.plot( self.x, self.data2, pen=(3,3) )
+        self.plotWidget = pg.plot(title="Gesture Graphing")
+        while True:
+            self.plotDataEvent.wait()
+            print("Plotting...")
+            self.plotWidget.plot(self.data0)
+            self.plotWidget.plot(self.data1)
+            self.plotWidget.plot(self.data2)
+            self.plotDataEvent.clear()
