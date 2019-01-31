@@ -3,7 +3,7 @@ class serReadline:
     def __init__(self, s):
         self.buf = bytearray()
         self.s = s
-    
+
     def readline(self):
         i = self.buf.find(b"\n")
         if i >= 0:
